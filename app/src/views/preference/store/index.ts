@@ -117,6 +117,7 @@ const useSystemSettingsStore = defineStore('systemSettings', () => {
       config_path: '',
       sbin_path: '',
       log_dir_white_list: [],
+      media_dir_white_list: [],
       pid_path: '',
       test_config_cmd: '',
       reload_cmd: '',

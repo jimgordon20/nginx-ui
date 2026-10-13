@@ -73,6 +73,7 @@ export function buildSettingCatalog(): SettingCatalogEntry[] {
     { path: 'nginx.config_dir', section: 'nginx', title: $gettext('Nginx Configurations Directory') },
     { path: 'nginx.config_path', section: 'nginx', title: $gettext('Nginx Configuration Path') },
     { path: 'nginx.log_dir_white_list', section: 'nginx', title: $gettext('Nginx Log Directory Whitelist') },
+    { path: 'nginx.media_dir_white_list', section: 'nginx', title: $gettext('Nginx Media Directory Whitelist') },
     { path: 'nginx.pid_path', section: 'nginx', title: $gettext('Nginx PID Path') },
     { path: 'nginx.test_config_cmd', section: 'nginx', title: $gettext('Nginx Test Config Command') },
     { path: 'nginx.reload_cmd', section: 'nginx', title: $gettext('Nginx Reload Command') },

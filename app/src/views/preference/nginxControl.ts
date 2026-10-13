@@ -12,6 +12,7 @@ export function cloneNginxSettings(nginx: NginxSettings): NginxSettings {
   return {
     ...nginx,
     log_dir_white_list: [...(nginx.log_dir_white_list ?? [])],
+    media_dir_white_list: [...(nginx.media_dir_white_list ?? [])],
   }
 }
 

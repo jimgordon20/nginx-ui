@@ -18,6 +18,7 @@ import (
 	"github.com/0xJacky/Nginx-UI/api/host"
 	"github.com/0xJacky/Nginx-UI/api/license"
 	"github.com/0xJacky/Nginx-UI/api/llm"
+	"github.com/0xJacky/Nginx-UI/api/media"
 	"github.com/0xJacky/Nginx-UI/api/nginx"
 	nginxLog "github.com/0xJacky/Nginx-UI/api/nginx_log"
 	"github.com/0xJacky/Nginx-UI/api/notification"
@@ -130,6 +131,7 @@ func InitRouter() {
 			external_notify.InitRouter(g)
 			backup.InitAutoBackupRouter(g)
 			nginxLog.InitRouter(g)
+			media.InitRouter(g)
 			upstream.InitHTTPRouter(g)
 			g.GET("/geolite/status", geolite.GetStatus)
 		}

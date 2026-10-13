@@ -10,8 +10,8 @@ import { certificatesRoutes } from './modules/certificates'
 import { configRoutes } from './modules/config'
 import { dashboardRoutes } from './modules/dashboard'
 import { dnsRoutes } from './modules/dns'
-import { domainAnalyticsRoutes } from './modules/domain_analytics'
 import { errorRoutes } from './modules/error'
+import { newFeaturesRoutes } from './modules/new_features'
 import { namespacesRoutes } from './modules/namespaces'
 import { nginxLogRoutes } from './modules/nginx_log'
 import { nodesRoutes } from './modules/nodes'
@@ -37,6 +37,7 @@ const mainLayoutChildren: RouteRecordRaw[] = [
     },
   },
   ...dashboardRoutes,
+  ...newFeaturesRoutes,
   ...sitesRoutes,
   ...streamsRoutes,
   ...upstreamRoutes,
@@ -46,7 +47,6 @@ const mainLayoutChildren: RouteRecordRaw[] = [
   ...dnsRoutes,
   ...terminalRoutes,
   ...nginxLogRoutes,
-  ...domainAnalyticsRoutes,
   ...namespacesRoutes,
   ...nodesRoutes,
   ...notificationsRoutes,

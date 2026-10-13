@@ -369,6 +369,28 @@ async function openSSHSetup() {
         :value="null"
       />
       <SettingRow
+        v-if="data.nginx.media_dir_white_list?.length"
+        :title="$gettext('Nginx Media Directory Whitelist')"
+        path="nginx.media_dir_white_list"
+        config-file="nginx"
+      >
+        <div class="text-right text-gray-500">
+          <div
+            v-for="dir in data.nginx.media_dir_white_list"
+            :key="dir"
+          >
+            {{ dir }}
+          </div>
+        </div>
+      </SettingRow>
+      <SettingRow
+        v-else
+        :title="$gettext('Nginx Media Directory Whitelist')"
+        path="nginx.media_dir_white_list"
+        config-file="nginx"
+        :value="null"
+      />
+      <SettingRow
         :title="$gettext('Nginx PID Path')"
         path="nginx.pid_path"
         config-file="nginx"

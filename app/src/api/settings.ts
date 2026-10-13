@@ -88,6 +88,7 @@ export interface NginxSettings {
   config_path: string
   sbin_path: string
   log_dir_white_list: string[]
+  media_dir_white_list?: string[]
   pid_path: string
   test_config_cmd: string
   reload_cmd: string
