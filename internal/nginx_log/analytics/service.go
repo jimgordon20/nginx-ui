@@ -14,6 +14,8 @@ import (
 type Service interface {
 	GetDashboardAnalytics(ctx context.Context, req *DashboardQueryRequest) (*DashboardAnalytics, error)
 
+	GetDomainAnalytics(ctx context.Context, req *DomainAnalyticsRequest) (*DomainAnalytics, error)
+
 	GetLogEntriesStats(ctx context.Context, req *searcher.SearchRequest) (*EntriesStats, error)
 
 	GetGeoDistribution(ctx context.Context, req *GeoQueryRequest) (*GeoDistribution, error)

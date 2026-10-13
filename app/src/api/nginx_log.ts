@@ -282,6 +282,51 @@ export interface DashboardAnalytics {
   summary: DashboardSummary
 }
 
+export interface DomainAnalyticsRequest {
+  log_path?: string
+  start_time?: number
+  end_time?: number
+}
+
+export interface ExtensionStats {
+  extension: string
+  count: number
+  percent: number
+}
+
+export interface DomainLogEntry {
+  timestamp: number
+  ip: string
+  method: string
+  path: string
+  status: number
+  bytes_sent: number
+  raw: string
+}
+
+export interface DomainBlockedIPStat {
+  ip: string
+  count: number
+  status_401: number
+  status_403: number
+}
+
+export interface DomainAnalytics {
+  hourly_stats: HourlyStats[]
+  daily_stats: DailyStats[]
+  top_urls: URLStats[]
+  summary: DashboardSummary
+  status_code_distribution: Record<string, number>
+  extensions: ExtensionStats[]
+  success_rate: number
+  client_error_rate: number
+  server_error_rate: number
+  total_status_hits: number
+  recent_entries: DomainLogEntry[]
+  security_events: DomainLogEntry[]
+  top_blocked_ips: DomainBlockedIPStat[]
+}
+
 export interface WorldMapData {
   code: string
   value: number
@@ -362,6 +407,14 @@ const nginx_log = extendCurdApi(useCurdApi('/nginx_logs'), {
   // Dashboard analytics API
   getDashboardAnalytics(data: DashboardRequest): Promise<DashboardAnalytics> {
     return http.post('/nginx_log/dashboard', data)
+  },
+
+  getDomainAnalytics(data: DomainAnalyticsRequest): Promise<DomainAnalytics> {
+    return http.post('/nginx_log/domain_analytics', data)
+  },
+
+  clearDomainLog(logPath: string): Promise<{ message: string, log_path: string }> {
+    return http.post('/nginx_log/clear', { log_path: logPath })
   },
 
   // Geographic analytics APIs

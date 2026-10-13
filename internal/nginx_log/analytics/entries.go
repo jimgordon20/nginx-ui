@@ -14,8 +14,12 @@ func (s *service) GetLogEntriesStats(ctx context.Context, req *searcher.SearchRe
 
 	// Ensure facets are included for stats calculation
 	req.IncludeFacets = true
-	req.FacetFields = []string{"status", "method", "path_exact", "ip", "user_agent"}
-	req.FacetSize = 10 // Top 10 for lists
+	if len(req.FacetFields) == 0 {
+		req.FacetFields = []string{"status", "method", "path_exact", "ip", "user_agent"}
+	}
+	if req.FacetSize <= 0 {
+		req.FacetSize = 10 // Top 10 for lists
+	}
 
 	result, err := s.searcher.Search(ctx, req)
 	if err != nil {
