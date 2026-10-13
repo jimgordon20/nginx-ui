@@ -666,7 +666,8 @@ jobs:
           echo "Upload completed successfully"
 
   docker-build:
-    if: github.event_name != 'pull_request'
+    # Official Docker Hub publish only. Forks use .github/workflows/docker-build.yml → GHCR.
+    if: github.event_name != 'pull_request' && github.repository == '0xJacky/nginx-ui'
     runs-on: ubuntu-latest
     needs: [build, build_macos_native]
     env:
