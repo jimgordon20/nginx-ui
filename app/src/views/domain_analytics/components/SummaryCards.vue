@@ -45,6 +45,8 @@ const cards = computed(() => {
       { key: 'traffic', title: $gettext('Bandwidth'), value: '—' },
       { key: 'success', title: $gettext('Success Rate'), value: '—' },
       { key: 'uv', title: $gettext('Unique Visitors'), value: '—' },
+      { key: 'bots', title: $gettext('Bot Traffic'), value: '—' },
+      { key: 'humans', title: $gettext('Human Requests'), value: '—' },
     ]
   }
 
@@ -69,6 +71,16 @@ const cards = computed(() => {
       key: 'uv',
       title: $gettext('Unique Visitors'),
       value: summary.total_uv.toLocaleString(),
+    },
+    {
+      key: 'bots',
+      title: $gettext('Bot Traffic'),
+      value: `${(props.data?.bot_percent ?? 0).toFixed(1)}%`,
+    },
+    {
+      key: 'humans',
+      title: $gettext('Human Requests'),
+      value: (props.data?.human_requests ?? 0).toLocaleString(),
     },
   ]
 })

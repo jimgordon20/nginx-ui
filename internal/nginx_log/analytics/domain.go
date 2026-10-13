@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/0xJacky/Nginx-UI/internal/nginx_log/searcher"
 )
@@ -49,6 +50,9 @@ type DomainAnalytics struct {
 	RecentEntries   []DomainLogEntry       `json:"recent_entries"`
 	SecurityEvents  []DomainLogEntry       `json:"security_events"`
 	TopBlockedIPs   []DomainBlockedIPStat  `json:"top_blocked_ips"`
+	BotRequests     int                    `json:"bot_requests"`
+	HumanRequests   int                    `json:"human_requests"`
+	BotPercent      float64                `json:"bot_percent"`
 }
 
 // GetDomainAnalytics composes dashboard series with status and extension breakdowns.
@@ -117,6 +121,8 @@ func (s *service) GetDomainAnalytics(ctx context.Context, req *DomainAnalyticsRe
 		return nil, err
 	}
 
+	botRequests, humanRequests, botPercent := botHumanSplit(dashboard.Browsers, dashboard.Summary.TotalPV)
+
 	return &DomainAnalytics{
 		HourlyStats:     dashboard.HourlyStats,
 		DailyStats:      dashboard.DailyStats,
@@ -131,7 +137,28 @@ func (s *service) GetDomainAnalytics(ctx context.Context, req *DomainAnalyticsRe
 		RecentEntries:   recent,
 		SecurityEvents:  securityEvents,
 		TopBlockedIPs:   topBlockedIPs,
+		BotRequests:     botRequests,
+		HumanRequests:   humanRequests,
+		BotPercent:      botPercent,
 	}, nil
+}
+
+func botHumanSplit(browsers []BrowserAccessStats, totalPV int) (bot, human int, percent float64) {
+	for _, item := range browsers {
+		if strings.EqualFold(item.Browser, "Bot") || strings.Contains(strings.ToLower(item.Browser), "bot") {
+			bot += item.Count
+			continue
+		}
+		human += item.Count
+	}
+	if totalPV > 0 && bot+human == 0 {
+		human = totalPV
+	}
+	counted := bot + human
+	if counted > 0 {
+		percent = float64(bot) / float64(counted) * 100
+	}
+	return bot, human, percent
 }
 
 func (s *service) fetchRecentDomainEntries(ctx context.Context, req *DomainAnalyticsRequest) ([]DomainLogEntry, error) {

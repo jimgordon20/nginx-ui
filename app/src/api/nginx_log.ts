@@ -325,6 +325,9 @@ export interface DomainAnalytics {
   recent_entries: DomainLogEntry[]
   security_events: DomainLogEntry[]
   top_blocked_ips: DomainBlockedIPStat[]
+  bot_requests?: number
+  human_requests?: number
+  bot_percent?: number
 }
 
 export interface WorldMapData {

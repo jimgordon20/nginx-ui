@@ -20,6 +20,7 @@ import (
 	"github.com/0xJacky/Nginx-UI/api/llm"
 	"github.com/0xJacky/Nginx-UI/api/media"
 	"github.com/0xJacky/Nginx-UI/api/nginx"
+	"github.com/0xJacky/Nginx-UI/api/shield"
 	nginxLog "github.com/0xJacky/Nginx-UI/api/nginx_log"
 	"github.com/0xJacky/Nginx-UI/api/notification"
 	"github.com/0xJacky/Nginx-UI/api/pages"
@@ -132,6 +133,7 @@ func InitRouter() {
 			backup.InitAutoBackupRouter(g)
 			nginxLog.InitRouter(g)
 			media.InitRouter(g)
+			shield.InitRouter(g)
 			upstream.InitHTTPRouter(g)
 			g.GET("/geolite/status", geolite.GetStatus)
 		}
