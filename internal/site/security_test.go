@@ -48,7 +48,7 @@ func setupSiteMutationTest(t *testing.T) (string, func()) {
 		t.Fatalf("failed to open test db: %v", err)
 	}
 
-	if err := db.AutoMigrate(&model.Site{}, &model.ConfigBackup{}, &model.LLMSession{}); err != nil {
+	if err := db.AutoMigrate(&model.Site{}, &model.ConfigBackup{}, &model.LLMSession{}, &model.Cert{}); err != nil {
 		t.Fatalf("failed to migrate test db: %v", err)
 	}
 
@@ -221,5 +221,72 @@ func TestRenameRelinksRegularFileInEnabledDir(t *testing.T) {
 	}
 	if target != filepath.Join(availableDir, "new.example.com") {
 		t.Fatalf("relinked entry points at %q, want the renamed available file", target)
+	}
+}
+
+// Renaming a site in maintenance mode used to leave the generated maintenance
+// config in sites-enabled under the old name, with no site left to disable it.
+func TestRenameRefusesSiteInMaintenance(t *testing.T) {
+	confDir, _ := setupSiteMutationTest(t)
+
+	availableDir := filepath.Join(confDir, "sites-available")
+	maintenancePath := filepath.Join(confDir, "sites-enabled", "old.example.com"+MaintenanceSuffix)
+	if err := os.WriteFile(filepath.Join(availableDir, "old.example.com"), []byte("server {\n}\n"), 0o644); err != nil {
+		t.Fatalf("failed to seed site config: %v", err)
+	}
+	if err := os.WriteFile(maintenancePath, []byte("server {\n}\n"), 0o644); err != nil {
+		t.Fatalf("failed to seed maintenance config: %v", err)
+	}
+
+	err := Rename(context.Background(), "old.example.com", "new.example.com")
+	if !errors.Is(err, ErrSiteIsInMaintenance) {
+		t.Fatalf("Rename error = %v, want %v", err, ErrSiteIsInMaintenance)
+	}
+	if _, err := os.Stat(filepath.Join(availableDir, "old.example.com")); err != nil {
+		t.Fatalf("refused rename moved the site file: %v", err)
+	}
+	if _, err := os.Stat(maintenancePath); err != nil {
+		t.Fatalf("refused rename removed the maintenance config: %v", err)
+	}
+}
+
+// The auto-cert record is linked to the site by file name. Renaming the site
+// used to leave it under the old name, so renewal skipped it.
+func TestRenameKeepsAutoCertRenewing(t *testing.T) {
+	confDir, waitForSyncQuery := setupSiteMutationTest(t)
+
+	availableDir := filepath.Join(confDir, "sites-available")
+	enabledDir := filepath.Join(confDir, "sites-enabled")
+	if err := os.WriteFile(filepath.Join(availableDir, "old.example.com"), []byte("server {\n}\n"), 0o644); err != nil {
+		t.Fatalf("failed to seed site config: %v", err)
+	}
+	if err := os.Symlink(filepath.Join(availableDir, "old.example.com"), filepath.Join(enabledDir, "old.example.com")); err != nil {
+		t.Fatalf("failed to enable site: %v", err)
+	}
+	certModel := &model.Cert{
+		Filename:        "old.example.com",
+		Domains:         []string{"old.example.com"},
+		AutoCert:        model.AutoCertEnabled,
+		ChallengeMethod: model.CertChallengeMethodHTTP01,
+	}
+	if err := model.UseDB().Create(certModel).Error; err != nil {
+		t.Fatalf("failed to seed certificate: %v", err)
+	}
+
+	if err := Rename(context.Background(), "old.example.com", "new.example.com"); err != nil {
+		t.Fatalf("Rename returned error: %v", err)
+	}
+	waitForSyncQuery()
+
+	renamed, err := model.FirstCert("new.example.com")
+	if err != nil {
+		t.Fatalf("FirstCert returned error: %v", err)
+	}
+	if renamed.ID != certModel.ID {
+		t.Fatalf("certificate for the renamed site = %d, want %d", renamed.ID, certModel.ID)
+	}
+	autoCertList := model.GetAutoCertList()
+	if len(autoCertList) != 1 || autoCertList[0].ID != certModel.ID {
+		t.Fatalf("auto-cert list after rename = %v, want the site's certificate", autoCertList)
 	}
 }
